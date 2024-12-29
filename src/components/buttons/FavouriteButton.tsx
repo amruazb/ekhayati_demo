@@ -51,7 +51,7 @@ export const FavoriteButton = ({ id }: { id: number | undefined }) => {
     setIsLoading(true);
 
     const favorites = getLocalFavorites(); // Fetch from local storage
-    const updatedFavorites = favorites.filter((favId) => favId !== id); // Remove the item
+    const updatedFavorites = favorites.filter((ItemId: number) => ItemId !== id); // Remove the item from favorites
     storeLocalFavorites(updatedFavorites); // Save to local storage
     setIsFavorited(false);
 
