@@ -18,7 +18,7 @@ const CardContainer = ({relative, children, scissors, noPadding, borderRadius, l
           left: -18,
           top: 60,
         }} />
-      } 
+      }
       {children}
     </div>
   )

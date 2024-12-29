@@ -18,6 +18,10 @@ import { saveCartItems, setUserAddresses, setUserProfiles } from "@/utils/cart";
 import { Checkbox } from "@nextui-org/react";
 import RequestPasswordResetDialog from "./components/RequestPasswordResetDialog";
 import { useTranslations } from "next-intl";
+import {
+  getLocalFavorites,
+  appendToFav
+} from "@/utils";
 
 type Inputs = {
   emailOrPhone: string;
@@ -57,6 +61,7 @@ const LoginPage = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (formData) => {
     setIsLoading(true);
+    const existingFavorites = getLocalFavorites();
     try {
       const { data, error }: any = await loginApi({
         identifier: formData.emailOrPhone,
@@ -111,6 +116,7 @@ const LoginPage = () => {
         setUserProfiles(userData?.size_profiles);
 
         storeLocalFavorites(fab);
+        appendToFav(existingFavorites);
         authCtx.setIsAuthenticated(true);
         authCtx.setToken(data?.jwt || "");
         authCtx.setUser({
