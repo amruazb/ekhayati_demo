@@ -1,0 +1,1 @@
+export * as TailorDesignsList from "./TailorDesignsList";

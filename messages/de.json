@@ -1,0 +1,17 @@
+{
+  "navigation": {
+    "home": "Home",
+    "shop": "Shop",
+    "customize": "Customize Mukhawar",
+    "contact": "Contact",
+    "about": "About",
+    "tailors": "Tailors"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Sign up"
+  },
+  "contact": {
+    "title1": "سيتسيمبت"
+  }
+}

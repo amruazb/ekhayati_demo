@@ -1,0 +1,23 @@
+.hamburger-icon {
+  cursor: pointer;
+  width: 25px;
+  height: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bar {
+  width: 25px;
+  height: 2px;
+  background: #FFD992;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.hamburger-icon.open .bar:first-child {
+  transform: rotate(45deg) translate(0, 10px);
+}
+
+.hamburger-icon.open .bar:last-child {
+  transform: rotate(-45deg) translate(0, -10px);
+}

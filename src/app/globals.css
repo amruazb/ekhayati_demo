@@ -1,0 +1,301 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: DroidKufiBold;
+  src: url("/assets/fonts/DroidKufi-Bold.ttf");
+}
+
+@font-face {
+  font-family: DroidKufiRegular;
+  src: url("/assets/fonts/DroidKufi-Regular.ttf");
+}
+
+body {
+  @apply leading-[normal] m-0;
+}
+
+*,
+::before,
+::after {
+  border-width: 0;
+}
+
+.rtlot>* {
+  direction: rtl !important;
+  font-family: DroidKufiRegular !important;
+  line-height: 1.5;
+}
+
+.rtlot h1,
+.rtlot>h2,
+.rtlot>h3,
+.rtlot>h4,
+.rtlot>h5,
+.rtlot h1 span {
+  font-family: DroidKufiBold !important;
+}
+
+/* Set the width of the carousel to 100% and allow overflow */
+.desktop-item-carousel .swiper {
+  width: 100%;
+  overflow: visible !important;
+}
+
+/* Set the width of each slide to 250px and add a transition effect */
+.desktop-item-carousel .swiper .swiper-slide {
+  width: 250px !important;
+  transition: all 0.5s ease-in-out;
+}
+
+/* When hovering over a slide, display it as a flex container, center its content, and increase its width to 360px */
+/* .desktop-item-carousel .swiper .swiper-slide:hover{
+  display: flex;
+  justify-content: center;
+  width: 375px !important;
+  margin: 0;
+} */
+
+/* Set the height of the item container to 404px */
+.desktop-item-carousel .swiper-slide .item-container,
+.swiper-slide .item-container .item {
+  height: 404px !important;
+}
+
+/* Add a transition effect to the item and set the transform origin to the bottom */
+.desktop-item-carousel .swiper-slide .item-container .item {
+  transition: all 0.3s ease-in-out;
+  transform-origin: bottom;
+}
+
+/* When hovering over an item, scale it to 1.5 times its original size */
+/* .desktop-item-carousel .swiper-slide .item-container .item:hover{
+  scale: 1.5;
+} */
+
+/* Set the width of the carousel to 100% and allow overflow */
+.desktop-fabric-carousel .swiper {
+  width: 100%;
+  overflow: visible !important;
+}
+
+.desktop-fabric-carousel .swiper .swiper-slide {
+  width: 250px !important;
+  transition: all 0.5s ease-in-out;
+}
+
+.desktop-fabric-carousel .swiper-slide .item-container,
+.desktop-fabric-carousel .swiper-slide .item-container .item {
+  height: 256px !important;
+}
+
+/* Add a transition effect to the item and set the transform origin to the bottom */
+.desktop-fabric-carousel .swiper-slide .item-container .item {
+  transition: all 0.3s ease-in-out;
+  transform-origin: bottom;
+}
+
+.desktop-tailor-carousel .swiper {
+  width: 100%;
+  overflow: visible !important;
+}
+
+/* Set the width of each slide to 250px and add a transition effect */
+.desktop-tailor-carousel .swiper .swiper-slide {
+  /* width: 575px !important; */
+  transition: all 0.5s ease-in-out;
+  /* max-width: 97vw !important; */
+}
+
+@media (max-width: 450px) {
+  .desktop-tailor-carousel .swiper .swiper-slide {
+    /* width: 390px !important; */
+    transition: all 0.5s ease-in-out;
+    /* max-width: 97vw !important; */
+  }
+
+  .desktop-tailor-carousel .swiper-slide .item-container,
+  .desktop-tailor-carousel .swiper-slide .item-container .item {
+    height: 250px !important;
+  }
+}
+
+.desktop-tailor-carousel .swiper-slide .item-container,
+.desktop-tailor-carousel .swiper-slide .item-container .item {
+  height: 250px !important;
+}
+
+/* Add a transition effect to the item and set the transform origin to the bottom */
+.desktop-tailor-carousel .swiper-slide .item-container .item {
+  transition: all 0.3s ease-in-out;
+  transform-origin: bottom;
+}
+
+/* When hovering over a slide, display it as a flex container, center its content, and increase its width to 360px */
+/* .desktop-fabric-carousel .swiper .swiper-slide:hover{
+  display: flex;
+  justify-content: center;
+  width: 360px !important;
+  margin: 0;
+} */
+
+/* Set the height of the item container to 404px */
+
+/* When hovering over an item, scale it to 1.5 times its original size */
+/* .desktop-fabric-carousel .swiper-slide .item-container .item:hover{
+  scale: 1.4;
+} */
+
+.productPageThumbs .swiper-slide-thumb-active {
+  opacity: 1 !important;
+}
+
+.productPageThumbs .swiper-slide {
+  opacity: .4;
+  transition: opacity .5s ease-in-out;
+}
+
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #FFD992 #023435;
+}
+
+/* Chrome, Edge and Safari */
+*::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background-color: #023435;
+}
+
+*::-webkit-scrollbar-track:hover {
+  background-color: #023435;
+}
+
+*::-webkit-scrollbar-track:active {
+  background-color: #023435;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background-color: #FFD992;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #FFB84E;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background-color: #FFB84E;
+}
+
+
+/*------------------------------------------STEPPER CSS----------------------------------------*/
+.ant-steps-item-container {
+  opacity: .5;
+}
+
+.ant-steps-item-title {
+  color: white !important;
+  line-height: 1.5 !important;
+  font-size: 12px !important;
+}
+
+.ant-steps-item-description {
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon>.ant-steps-icon {
+  color: #FFD992 !important;
+}
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #FFD992 !important;
+}
+
+.magincont img {
+  max-width: unset !important;
+}
+
+
+
+/*------------------------------------------UPLOADER CSS----------------------------------------*/
+.upload-item .upload-item-overlay {
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.upload-item:hover .upload-item-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  opacity: 1;
+  visibility: visible;
+}
+
+.choose-design-item-image .design-card-image-item-overlay {
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+  visibility: hidden;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.choose-design-item-image:hover .design-card-image-item-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  opacity: 1;
+  visibility: visible;
+}
+
+
+.tailor-home-carousel .swiper-pagination {
+  bottom: -30px !important;
+}
+
+/* make the active dot same as secondary color */
+.tailor-home-carousel .swiper-pagination-bullet-active {
+  background-color: #FFD992 !important;
+}
+
+@media screen and (max-width: 768px) {
+  .choose-design-item-image:hover .design-card-image-item-overlay {
+    display: none !important;
+    opacity: 0 !important;
+  }
+}
