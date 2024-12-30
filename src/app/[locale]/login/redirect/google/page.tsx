@@ -4,11 +4,12 @@ import { Button, CircularProgress } from "@nextui-org/react";
 import { useEffect } from "react";
 import qs from "querystring";
 import axios from "axios";
-import { getCart, getMe } from "@/provider";
+import { getCart, getMe, getFavoritedProducts } from "@/provider";
 import { useAuth } from "@/provider/AuthContext";
 import { setToken, useRouter } from "@/utils";
 import { saveCartItems, setUserAddresses, setUserProfiles } from "@/utils/cart";
 import { ToastContainer, toast } from "react-toastify";
+import { storeLocalFavorites, getLocalFavorites, appendToFav } from "@/utils";
 
 export default function AuthGoogleCallback(props: any) {
 
@@ -25,6 +26,7 @@ export default function AuthGoogleCallback(props: any) {
         const query = props.searchParams;
         const apiHost = process.env.NEXT_PUBLIC_API_HOST;
         const baseUrl = apiHost + "auth/google/callback";
+        const existingFavorites = getLocalFavorites();
         try {
             const res = await axios.get(baseUrl + "?" + qs.stringify(query));
             const data = res.data;
@@ -35,10 +37,24 @@ export default function AuthGoogleCallback(props: any) {
     
             //get othter details
             const { data: userData } = await getMe(data.jwt);
+           
+            //get favorite products
+            const { data: favoritesData }:any = await getFavoritedProducts(data.jwt);
+
+            const fab: any = [];
+
+            favoritesData?.res.forEach((item: any) => {
+            fab.push(item.id);
+            });
+
             //@ts-ignore
             setUserAddresses(userData?.addresses);
             //@ts-ignore
             setUserProfiles(userData?.size_profiles);
+
+            storeLocalFavorites(fab);
+            appendToFav(existingFavorites);
+
             authCtx.setIsAuthenticated(true);
             authCtx.setToken(data?.jwt || "");
             authCtx.setUser({
@@ -46,6 +62,12 @@ export default function AuthGoogleCallback(props: any) {
               name: data?.user?.name,
               email: data?.user?.email
             });
+            const redirectPath = sessionStorage.getItem("redirectTo");
+            if (redirectPath) {
+                router.push(redirectPath as any);
+                sessionStorage.removeItem("redirectTo"); // Clear after redirection
+                return;
+            }
             router.push("/");
         } catch (err) {
             toast.error("Email already used, please use password for login");
