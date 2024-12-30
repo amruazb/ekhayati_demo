@@ -1,12 +1,12 @@
 "use client";
 import { useForm, SubmitHandler } from "react-hook-form";
 import CardContainer from "@/abstract/CardContainer";
-import { Link } from "@/utils";
+import { Link, storeLocalFavorites } from "@/utils";
 import PhoneInput from "react-phone-input-2";
 import {ThemeInput} from "@/components/input/theme-input";
 import { MobileInput } from "@/components/input/mobile-input";
 import SignupButton from "./components/SignupButton";
-import { getCart, getMe, registerApi } from "@/provider";
+import { getCart, getMe, getFavoritedProducts, registerApi } from "@/provider";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
@@ -18,6 +18,10 @@ import { saveCartItems, setUserAddresses, setUserProfiles } from "@/utils/cart";
 import "react-phone-input-2/lib/style.css";
 import Link2 from "next/link";
 import { useTranslations } from "next-intl";
+import {
+  getLocalFavorites,
+  appendToFav
+} from "@/utils";
 
 type Inputs = {
   name: string;
@@ -82,6 +86,8 @@ const LoginPage = () => {
     // const country = countryList.getCountryData(formData.countryCode);
     // formData.phone = "+" + country?.phone?.[0] + formData.phone;
     setIsLoading(true);
+    const existingFavorites = getLocalFavorites();
+
 
     try {
       const {
@@ -145,6 +151,18 @@ const LoginPage = () => {
         setUserAddresses(userData?.addresses);
         //@ts-ignore
         setUserProfiles(userData?.size_profiles);
+
+        // Step 5: Get favorites from the server
+        const { data: favoritesData }: any = await getFavoritedProducts(registerData.jwt);
+        const fab: any = [];
+        favoritesData?.res.forEach((item: any) => {
+          fab.push(item.id);
+        });
+
+        // Step 6: Merge local favorites with server favorites
+        storeLocalFavorites(fab);
+        appendToFav(existingFavorites);
+
         authCtx.setIsAuthenticated(true);
         authCtx.setToken(registerData?.jwt || "");
         authCtx.setUser({
@@ -152,6 +170,18 @@ const LoginPage = () => {
           name: registerData?.user?.name,
           email: registerData?.user?.email,
         });
+
+         // Step 7: Handle redirection
+        let redirectPath = sessionStorage.getItem("redirectTo");
+        if (redirectPath) {
+          if (redirectPath.startsWith("/en")) {
+              redirectPath = redirectPath.slice(3); // Remove the first 3 characters
+          }
+          router.push(redirectPath as any);
+          sessionStorage.removeItem("redirectTo"); // Clear redirect path
+          return;
+        }
+        
         router.push("/");
         setIsLoading(false);
       }
