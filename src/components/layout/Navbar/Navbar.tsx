@@ -119,7 +119,8 @@ const NavbarClientComponent = () => {
         <div className="flex items-center gap-1 md:gap-2 lg:gap-3 xl:gap-4 2xl:gap-6">
           <Link
             prefetch={true}
-            href={ctx.isAuthenticated ? "/favorites" : "/login"}
+            // href={ctx.isAuthenticated ? "/favorites" : "/login"}
+            href={"/favorites"}
           >
             <Button
               isIconOnly
@@ -261,7 +262,8 @@ const NavbarClientComponent = () => {
         <div className="flex items-center gap-1 md:gap-2 lg:gap-3 xl:gap-4 2xl:gap-6">
           <Link
             prefetch={true}
-            href={ctx.isAuthenticated ? "/favorites" : "/login"}
+            // href={ctx.isAuthenticated ? "/favorites" : "/login"}
+            href={"/favorites"}
           >
             <Button
               isIconOnly
