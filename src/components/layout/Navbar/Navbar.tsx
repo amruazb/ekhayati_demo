@@ -131,7 +131,8 @@ const NavbarClientComponent = () => {
             </Button>
           </Link>
 
-          <Link prefetch={true} href={ctx.isAuthenticated ? "/cart" : "/login"}>
+          <Link prefetch={true} href={"/cart"}>
+          {/* <Link prefetch={true} href={ctx.isAuthenticated ? "/cart" : "/login"}> */}
             <Badge
               content={ctx.cartItemCount}
               showOutline={false}
@@ -274,7 +275,8 @@ const NavbarClientComponent = () => {
             </Button>
           </Link>
 
-          <Link prefetch={true} href={ctx.isAuthenticated ? "/cart" : "/login"}>
+          <Link prefetch={true} href={"/cart"}>
+          {/* <Link prefetch={true} href={ctx.isAuthenticated ? "/cart" : "/login"}> */}
             <Badge
               content={ctx.cartItemCount}
               showOutline={false}

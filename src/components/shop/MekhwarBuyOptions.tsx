@@ -1,6 +1,7 @@
 "use client";
 import { ThemeInput } from "@/components/input/theme-input";
 import { useAuth } from "@/provider/AuthContext";
+import { useProducts } from "@/provider/ProductContext";
 import {
   Button,
   Checkbox,
@@ -25,6 +26,7 @@ import {
   IconShoppingBag,
 } from "@tabler/icons-react";
 import { useLocale, useTranslations } from "next-intl";
+import { getProductListing } from "@/provider";
 import DropdownComponent from "@/app/[locale]/custom-mekhwar/components/Drop";
 
 let patternTwoDigisAfterComma = /^\d+(\.\d{0,2})?$/;
@@ -231,9 +233,9 @@ export const MekhwarBuyOptions = (props: MekhwarBuyOptionsProps) => {
   }, []);
 
   const handleAddToCart = async () => {
-    if (!ctx.isAuthenticated) {
-      return router.push("/login");
-    }
+    // if (!ctx.isAuthenticated) {
+    //   return router.push("/login");
+    // }
     if (selectedChestOption === "Chest Point") {
       toast.error("Please select a Chest Point size", {
         position: "bottom-center",
@@ -279,6 +281,7 @@ export const MekhwarBuyOptions = (props: MekhwarBuyOptionsProps) => {
     reset();
   };
 
+  const products: any[] = useProducts(); // Access global product data
   const addCustomToCart = async () => {
     const vals = getValues();
     for (const key in vals) {
@@ -287,6 +290,55 @@ export const MekhwarBuyOptions = (props: MekhwarBuyOptionsProps) => {
         return;
       }
     }
+
+    if (!ctx.isAuthenticated) {
+      const productDetails = products.find((product) => product.id === props.id);
+
+      if (!productDetails) {
+          toast.error("Product details not found!");
+          return;
+      }
+
+      // Build cart object in the logged-in user's format
+      const localCart = JSON.parse(localStorage.getItem("cart") || '{"custom": []}');
+      const newCartItem = {
+          id: new Date().getTime(), // Generate a unique ID for the cart item
+          quantity: 1, // Default quantity
+          shoulder: vals.shoulder,
+          bust: vals.bust,
+          wrist: vals.wrist,
+          size: null,
+          save_size_profile: vals.saveSizeProfile || false,
+          customer_instructions: customerInstructions,
+          chest_point: selectedChestOption,
+          cup: selectedCupOption,
+          arm_width: vals.arm_width,
+          height: vals.height,
+          sleeves_length: vals.sleeves_length,
+          neck: vals.neck,
+          hips: vals.hips,
+          mekhwar: {
+              id: productDetails.id,
+              title: productDetails.attributes?.title,
+              description: productDetails.attributes?.description,
+              createdAt: productDetails.attributes?.createdAt,
+              updatedAt: productDetails.attributes?.updatedAt,
+              publishedAt: productDetails.attributes?.publishedAt,
+              price: productDetails.attributes?.price,
+              locale: productDetails.attributes?.locale,
+              rating: productDetails.attributes?.rating,
+              customizable: productDetails.attributes?.customizable,
+              main_image: productDetails.attributes?.main_image?.data?.attributes,
+          },
+      };
+
+      // Append the new item to the cart
+      localCart.custom.push(newCartItem);
+      localStorage.setItem("cart", JSON.stringify(localCart));
+      toast.success("Item added to cart!");
+      return;
+  }
+
     setIsLoading(true);
     const { data, error } = await addMekhwarToCart(ctx.token, {
       ...getValues(),

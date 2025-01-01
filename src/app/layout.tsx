@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import { NextIntlClientProvider, useLocale, useMessages } from "next-intl";
 import AuthContextProvider from "@/provider/AuthContext";
+import { ProductProvider } from "@/provider/ProductContext";
 import { Analytics } from '@vercel/analytics/react';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -40,9 +41,11 @@ export default function RootLayout({
         // onError={(e) => console.error(e)}
         >
           <AuthContextProvider>
+            <ProductProvider>
             <Navbar />
             {children}
             <Footer />
+            </ProductProvider>
           </AuthContextProvider>
         </NextIntlClientProvider>
         {/* <SpeedInsights /> */}

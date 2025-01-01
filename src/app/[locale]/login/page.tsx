@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { ThemeInput } from "@/components/input/theme-input";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { extractError, getCart, getFavoritedProducts, getMe, loginApi } from "@/provider";
+import { extractError, getCart, getFavoritedProducts, getMe, loginApi, incrementCartItem } from "@/provider";
 import { useRouter } from "next/navigation";
 import { setToken } from "@/utils";
 import { useAuth } from "@/provider/AuthContext";
@@ -22,6 +22,9 @@ import {
   getLocalFavorites,
   appendToFav
 } from "@/utils";
+import { addMekhwarToCart } from "@/provider";
+import { useProducts } from "@/provider/ProductContext";
+
 
 type Inputs = {
   emailOrPhone: string;
@@ -35,12 +38,13 @@ const formSchema = Yup.object().shape({
   password: Yup.string()
     .required("Please enter your password")
     .min(6, "Password length should be at least 6 characters"),
-});
+  });
 
-const LoginPage = () => {
+  const LoginPage = () => {
+  const products: any[] = useProducts(); // Fetch global products
   const [idLoading, setIsLoading] = useState(false);
   const [isPasswordResetDialogOpen, setIsPasswordResetDialogOpen] =
-    useState(false);
+  useState(false);
 
     const t = useTranslations("auth");
   const router = useRouter();
@@ -62,6 +66,7 @@ const LoginPage = () => {
   const onSubmit: SubmitHandler<Inputs> = async (formData) => {
     setIsLoading(true);
     const existingFavorites = getLocalFavorites();
+
     try {
       const { data, error }: any = await loginApi({
         identifier: formData.emailOrPhone,
@@ -95,9 +100,75 @@ const LoginPage = () => {
           theme: "light",
         });
         setToken(data);
-        const { data: cartData, error } = await getCart(data.jwt);
-        //@ts-ignore
-        saveCartItems(cartData);
+
+        const existingCart = JSON.parse(localStorage.getItem("cart") || '{"custom": []}');
+        const guestCartItems = existingCart.custom || []; // Extract `custom` array for guest users
+
+        // Enrich guest cart items with product data
+        const enrichedGuestCart = guestCartItems.map((item: { id: string }) => {
+          const product = products.find((p) => p.id === item.id); // Use fetched products to enrich
+          return product
+            ? {
+                ...item,
+                mekhwar: {
+                  id: product.id,
+                  title: product.attributes?.title,
+                  price: product.attributes?.price,
+                  main_image: product.attributes?.main_image?.data?.attributes?.url,
+                },
+              }
+            : item; // Keep the item unchanged if no matching product
+        });
+
+        try {
+          // Fetch the backend cart for the logged-in user
+          const { data: cartData, error } = await getCart(data.jwt);
+          if (error) {
+            console.error("Error fetching backend cart:", error);
+            return;
+          }
+
+          const mergedCart = [
+            ...cartData?.custom || [], // Backend cart items
+            ...enrichedGuestCart, // Enriched guest cart items
+          ];
+          
+          // Merge duplicates by incrementing quantity instead of duplicating
+          const uniqueMergedCart = mergedCart.reduce((acc, current) => {
+            const existingItem = acc.find((item) => item.id === current.id);
+            if (existingItem) {
+              // Increment quantity if item already exists
+              existingItem.quantity = (existingItem.quantity || 1) + (current.quantity || 1);
+            } else {
+              acc.push(current);
+            }
+            return acc;
+          }, []);
+          
+          // Save the merged cart to localStorage and backend
+          saveCartItems({ ...cartData, custom: uniqueMergedCart });
+          
+          // Sync enriched guest cart items with backend
+          for (const item of enrichedGuestCart) {
+            const existingItem = cartData?.custom?.find((backendItem) => backendItem.id === item.id);
+            if (existingItem) {
+              // Increment quantity for existing items in backend
+              await incrementCartItem(data.jwt, { id: item.id, dataType: item.type });
+            } else {
+              // Add new items to backend
+              await addMekhwarToCart(data.jwt, item);
+            }
+          }
+          
+          console.log("Cart successfully merged and synced with updated quantities.");
+          
+
+          console.log("Cart successfully merged and synced.");
+        } catch (error) {
+          console.error("Error during cart merge and sync:", error);
+        }
+
+  
 
         //get othter details
         const { data: userData } = await getMe(data.jwt);

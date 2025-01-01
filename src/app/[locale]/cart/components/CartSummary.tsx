@@ -6,7 +6,8 @@ import { Button } from "@nextui-org/react";
 import DeliveryNote from "./DeliverNote";
 import { useEffect, useState } from "react";
 import { useRouter } from "@/utils";
-import { getUserCart } from "@/utils/cart";
+import { getUserCart,  saveCartItems } from "@/utils/cart";
+import { useAuth } from "@/provider/AuthContext";
 import qs from "qs";
 import { useTranslations } from "next-intl";
 export interface CartSummaryProps {
@@ -29,6 +30,7 @@ export default function CartSummary(props: CartSummaryProps) {
   const [couponCode, setCouponCode] = useState("");
 
   const router = useRouter();
+  const authCtx = useAuth();
   const t = useTranslations("shop");
 
   useEffect(() => {
@@ -38,6 +40,11 @@ export default function CartSummary(props: CartSummaryProps) {
 
   const handleCheckout = () => {
     const cart = getUserCart();
+    if (!authCtx.isAuthenticated) {
+      sessionStorage.setItem("redirectTo", "/en/cart");
+      router.push("/login");
+      return;
+  }
 
     router.push({
       pathname: "/checkout/address",

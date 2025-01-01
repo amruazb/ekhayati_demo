@@ -10,9 +10,10 @@ import { CircularProgress } from "@nextui-org/react";
 import { decrementCartItem, getSiteConfig, incrementCartItem, removeCartItem } from "@/provider";
 import Image from "next/image";
 import { CartHeader } from "./components/CartHeader";
+import { useProducts } from "@/provider/ProductContext";  
+
 
 const Cart = () => {
-
   const [loading, setLoading] = useState(true);
   const [loadCompleted, setLoadCompleted] = useState(true);
   const [cartData, setCartData] = useState<any>(null);
@@ -20,29 +21,127 @@ const Cart = () => {
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const [tax, setTax] = useState(0);
   const [deliveryNote, setDeliveryNote] = useState("");
-
+  
   const ctx = useAuth();
   const router = useRouter();
+  const products: any[] = useProducts(); // Fetch products using the Hook here
+  // useEffect(() => {
+  //   console.log("Products in Cart component:", products);
+  // }, [products]);
 
-  const loadData = async () => {
-    if (!ctx.checkAuth()) {
-      return router.push("/login");
-    }
+  const validateCartItems = (cartItems: any[], products: any[]) => {
+    return cartItems
+      .map((item) => {
+        const product = products.find((p) => p.id === item.mekhwar?.id || item.id); // Match based on `mekhwar.id` for guest items
+        if (!product) return null; // Handle invalid items
+        return {
+          ...item,
+          title: product.attributes?.title || item.mekhwar?.title,
+          price: product.attributes?.price || item.mekhwar?.price,
+          main_image: product.attributes?.main_image?.data?.attributes?.url || item.mekhwar?.main_image?.url,
+        };
+      })
+      .filter(Boolean);
+  };
+  
+  useEffect(() => {
+    const loadData = async () => {
+      if (products.length === 0) {
+        // Wait until products are fetched
+        console.log("Waiting for products to load...");
+        return;
+      }
+  
+      if (!ctx.checkAuth()) {
+        // Guest User: Load data from localStorage
+        const localCart = JSON.parse(localStorage.getItem("cart") || '{"custom": []}');
+        const guestCartItems = localCart.custom || []; // Extract `custom` array for guest users
+  
+        console.log("Local cart:", guestCartItems);
+        console.log("Products:", products);
+  
+        const validatedCart = validateCartItems(guestCartItems, products);
+        console.log("Validated cart:", validatedCart);
+        setCartData({ custom: validatedCart }); // Set the updated `custom` structure
+        setLoadCompleted(true);
+        setLoading(false);
+        return;
+      }
+  
+      // Authenticated User: Load from API
+      const cartItems = getUserCart();
+      setCartData(cartItems);
+  
+      const { data } = await getSiteConfig();
+      setDeliveryCharge(data?.data?.attributes?.delivery_charge || 0);
+      setTax(data?.data?.attributes?.tax || 0);
+      setDeliveryNote(data?.data?.attributes?.delivery_note || "");
+  
+      setLoadCompleted(true);
+      setLoading(false);
+    };
+  
+    loadData();
+  }, [products]); // Dependency on `products` ensures the effect re-runs when products are updated.
+  
 
-    const cartItems = getUserCart();
-    setCartData(cartItems);
+  // const loadData = async () => {
+  //   if (!ctx.checkAuth()) {
+  //     // Load data from localStorage for guest users
+  //     const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+  //     console.log("Local cart", localCart);
+  //     console.log("Products", products);
+  //     const validatedCart = validateCartItems(localCart, products);
+  //     console.log("Validated cart", validatedCart);
+  //     setCartData(validatedCart);
+  //     setLoadCompleted(true);
+  //     setLoading(false);
+  //     return;
+  //   }
 
-    const { data } = await getSiteConfig();
-    setDeliveryCharge(data?.data?.attributes?.delivery_charge || 0);
-    setTax(data?.data?.attributes?.tax || 0);
-    setDeliveryNote(data?.data?.attributes?.delivery_note || "");
-    setLoadCompleted(true);
-    setLoading(false);
-  }
+  //   const cartItems = getUserCart();
+  //   setCartData(cartItems);
+
+  //   const { data } = await getSiteConfig();
+  //   setDeliveryCharge(data?.data?.attributes?.delivery_charge || 0);
+  //   setTax(data?.data?.attributes?.tax || 0);
+  //   setDeliveryNote(data?.data?.attributes?.delivery_note || "");
+  //   setLoadCompleted(true);
+  //   setLoading(false);
+  // }
 
   const handleCartItemAction = async (action: "increment" | "decrement" | "delete", item: any) => {
     if (!item) return;
     setUpdating(true);
+    if (!ctx.checkAuth()) {
+      // Guest user: Update localStorage directly
+      const localCart = JSON.parse(localStorage.getItem("cart") || "{}");
+      const updatedCart = { ...localCart };
+  
+      switch (action) {
+        case "increment":
+          updatedCart.custom = updatedCart.custom.map((cartItem: any) =>
+            cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+          );
+          break;
+        case "decrement":
+          updatedCart.custom = updatedCart.custom.map((cartItem: any) =>
+            cartItem.id === item.id && cartItem.quantity > 1
+              ? { ...cartItem, quantity: cartItem.quantity - 1 }
+              : cartItem
+          );
+          break;
+        case "delete":
+          updatedCart.custom = updatedCart.custom.filter((cartItem: any) => cartItem.id !== item.id);
+          break;
+      }
+  
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      setCartData(updatedCart);
+      setUpdating(false);
+      return;
+    }
+    
     let res: any = null;
     switch (action) {
       case "increment":
@@ -68,9 +167,9 @@ const Cart = () => {
     setUpdating(false);
   }
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // useEffect(() => {
+  //   loadData();
+  // }, []);
 
   const classes = [
     "w-full",
