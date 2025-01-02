@@ -128,14 +128,15 @@ const formSchema = Yup.object().shape({
             return;
           }
 
+          const customCartItems = (cartData as any)?.custom || [];
           const mergedCart = [
-            ...cartData?.custom || [], // Backend cart items
+            ...customCartItems, // Backend cart items
             ...enrichedGuestCart, // Enriched guest cart items
           ];
           
           // Merge duplicates by incrementing quantity instead of duplicating
           const uniqueMergedCart = mergedCart.reduce((acc, current) => {
-            const existingItem = acc.find((item) => item.id === current.id);
+            const existingItem = acc.find((item: { id: string }) => item.id === current.id);
             if (existingItem) {
               // Increment quantity if item already exists
               existingItem.quantity = (existingItem.quantity || 1) + (current.quantity || 1);
@@ -150,7 +151,7 @@ const formSchema = Yup.object().shape({
           
           // Sync enriched guest cart items with backend
           for (const item of enrichedGuestCart) {
-            const existingItem = cartData?.custom?.find((backendItem) => backendItem.id === item.id);
+            const existingItem = customCartItems?.find((backendItem: { id: string }) => backendItem.id === item.id);
             if (existingItem) {
               // Increment quantity for existing items in backend
               await incrementCartItem(data.jwt, { id: item.id, dataType: item.type });
