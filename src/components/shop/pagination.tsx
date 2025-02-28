@@ -3,30 +3,30 @@
 
 import { Pagination } from "@nextui-org/react";
 import {
-  useParams,
   useRouter,
   usePathname,
   useSearchParams,
 } from "next/navigation";
 import { useEffect, useState } from "react";
 import qs from "qs";
-import { useLocale } from "next-intl";
 
 const ShopPagination = (props: any) => {
   const router = useRouter();
   const pathName = usePathname();
-  const searchparams = useSearchParams();
-  const [page, setPage] = useState(0);
-  const [pageCount, setPageCount] = useState(0);
+  const searchParams = useSearchParams();
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(1);
 
-  const handlePageChange = (page: number) => {
-    if (window !== undefined) {
-      let s = window?.location.search;
-      if (s?.length) s = s.slice(1, s.length);
-      const parsed: any = qs.parse(s);
-      if (!parsed?.pagination) parsed.pagination = {};
-      parsed.pagination.page = page;
-      router.push(
+  const handlePageChange = (newPage: number) => {
+    if (typeof window !== "undefined") {
+      let searchQuery = window.location.search;
+      if (searchQuery.length) searchQuery = searchQuery.slice(1);
+
+      const parsed: any = qs.parse(searchQuery);
+      if (!parsed.pagination) parsed.pagination = {};
+      parsed.pagination.page = newPage;
+
+      router.replace(
         `${pathName}?${qs.stringify(parsed, { encodeValuesOnly: true })}`,
         { scroll: true }
       );
@@ -39,15 +39,15 @@ const ShopPagination = (props: any) => {
       setPage(props.data.page);
     }
 
-    if (window !== undefined) {
-      let s = window?.location.search;
-      if (s?.length) s = s.slice(1, s.length);
-      const parsed: any = qs.parse(s);
-      if (parsed?.pagination?.page) {
-        setPage(+parsed.pagination.page);
-      }
+    if (typeof window !== "undefined") {
+      let searchQuery = window.location.search;
+      if (searchQuery.length) searchQuery = searchQuery.slice(1);
+
+      const parsed: any = qs.parse(searchQuery);
+      const currentPage = Number(parsed?.pagination?.page) || 1; 
+      setPage(currentPage);
     }
-  }, [props?.data?.pageCount, props?.data?.page, searchparams.getAll("filter")]);
+  }, [props?.data?.pageCount, props?.data?.page, searchParams.getAll("filter")]);
 
   return (
     <>
@@ -61,7 +61,7 @@ const ShopPagination = (props: any) => {
           page={page}
           initialPage={page}
           onChange={handlePageChange}
-          hidden={pageCount < 1 || page < 1}
+          hidden={pageCount < 1 || page === 0}
         />
       )}
     </>
